@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BackpackWithUs — Explore the World</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --forest:   #2D4A3E;
+      --moss:     #4A7C59;
+      --sage:     #8FAF8A;
+      --clay:     #C2714F;
+      --sand:     #E8D5B7;
+      --sky:      #7BAFD4;
+      --cream:    #FAF7F2;
+      --charcoal: #1E2620;
+      --mist:     #EEF2EE;
+      --ff-display: 'Playfair Display', Georgia, serif;
+      --ff-body:    'DM Sans', sans-serif;
+      --space-xs: 0.5rem; --space-sm: 1rem; --space-md: 2rem;
+      --space-lg: 4rem;   --space-xl: 8rem;
+      --radius-sm: 4px; --radius-md: 12px; --radius-lg: 24px;
+      --transition: 0.35s cubic-bezier(0.4,0,0.2,1);
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body { font-family: var(--ff-body); background: var(--cream); color: var(--charcoal); line-height: 1.6; overflow-x: hidden; }
+    img { display: block; max-width: 100%; }
+    a { text-decoration: none; color: inherit; }
+    ul { list-style: none; }
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: var(--cream); }
+    ::-webkit-scrollbar-thumb { background: var(--sage); border-radius: 3px; }
+
+    /* Utility */
+    .container { max-width: 1180px; margin-inline: auto; padding-inline: var(--space-md); }
+    .tag {
+      display: inline-block; font-size: 0.7rem; font-weight: 500;
+      letter-spacing: 0.18em; text-transform: uppercase;
+      color: var(--moss); padding: 4px 12px;
+      border: 1px solid var(--sage); border-radius: 100px;
+    }
+    .section-heading { font-family: var(--ff-display); font-size: clamp(2rem,5vw,3.5rem); line-height: 1.15; color: var(--forest); }
+    .section-subtext  { font-size: 1rem; color: #5a6b5c; max-width: 520px; line-height: 1.75; }
+    .btn {
+      display: inline-flex; align-items: center; gap: .5rem;
+      padding: .85rem 2rem; border-radius: 100px;
+      font-family: var(--ff-body); font-size: .9rem; font-weight: 500;
+      cursor: pointer; transition: var(--transition); border: none;
+    }
+    .btn-primary { background: var(--forest); color: var(--cream); }
+    .btn-primary:hover { background: var(--moss); transform: translateY(-2px); box-shadow: 0 8px 24px rgba(45,74,62,.25); }
+    .btn-outline  { background: transparent; color: var(--forest); border: 1.5px solid var(--forest); }
+    .btn-outline:hover { background: var(--forest); color: var(--cream); transform: translateY(-2px); }
+    .section { padding: var(--space-xl) 0; }
+    .section-header { display: flex; flex-direction: column; gap: var(--space-xs); margin-bottom: var(--space-lg); }
+    .section-header.centered { align-items: center; text-align: center; }
+    .section-header.centered .section-subtext { margin-inline: auto; }
+    .reveal { opacity: 0; transform: translateY(24px); transition: opacity .7s ease, transform .7s ease; }
+    .reveal.visible { opacity: 1; transform: translateY(0); }
+    @keyframes fadeUp { from { opacity:0; transform:translateY(28px); } to { opacity:1; transform:translateY(0); } }
+
+    /* ── NAV ── */
+    nav { position: fixed; top:0; left:0; right:0; z-index:100; padding: 1.25rem 0; transition: background var(--transition), box-shadow var(--transition); }
+    nav.scrolled { background: rgba(250,247,242,.95); backdrop-filter: blur(12px); box-shadow: 0 1px 0 rgba(0,0,0,.07); }
+    .nav-inner { display: flex; align-items: center; justify-content: space-between; }
+    .logo { font-family: var(--ff-display); font-size: 1.35rem; color: var(--forest); font-weight: 700; }
+    .logo span { color: var(--clay); }
+    .nav-links { display: flex; gap: var(--space-md); align-items: center; }
+    .nav-links a { font-size: .875rem; color: var(--charcoal); opacity: .75; transition: opacity var(--transition); }
+    .nav-links a:hover { opacity: 1; }
+    .nav-links .btn { opacity: 1; }
+
+    /* ── HERO ── */
+    #hero {
+      min-height: 100svh; display: grid; grid-template-columns: 1fr 1fr;
+      align-items: center; padding-top: 5rem; position: relative; overflow: hidden;
+    }
+    .hero-bg {
+      position: absolute; inset: 0; pointer-events: none;
+      background: radial-gradient(ellipse 60% 70% at 75% 50%, rgba(123,175,212,.15) 0%, transparent 60%),
+                  radial-gradient(ellipse 40% 50% at 20% 80%, rgba(74,124,89,.10) 0%, transparent 55%);
+    }
+    .hero-ring { position: absolute; border-radius: 50%; border: 1px solid rgba(74,124,89,.1); pointer-events: none; }
+    .hero-ring:nth-child(1) { width:500px; height:500px; right:-80px; top:50%; transform:translateY(-50%); }
+    .hero-ring:nth-child(2) { width:700px; height:700px; right:-200px; top:50%; transform:translateY(-50%); }
+    .hero-ring:nth-child(3) { width:900px; height:900px; right:-320px; top:50%; transform:translateY(-50%); }
+    .hero-content { position:relative; z-index:2; padding:var(--space-lg) 0; animation: fadeUp .9s ease both; }
+    .hero-content .tag { margin-bottom: var(--space-sm); }
+    .hero-title { font-family:var(--ff-display); font-size:clamp(2.8rem,6vw,5rem); line-height:1.08; color:var(--forest); margin-bottom:var(--space-sm); }
+    .hero-title em { font-style:italic; color:var(--clay); }
+    .hero-desc { font-size:1.05rem; color:#5a6b5c; max-width:440px; margin-bottom:var(--space-md); line-height:1.8; }
+    .hero-actions { display:flex; gap:var(--space-sm); flex-wrap:wrap; }
+    .hero-stats { display:flex; gap:var(--space-md); margin-top:var(--space-lg); padding-top:var(--space-md); border-top:1px solid rgba(45,74,62,.12); }
+    .hero-stat span { display:block; font-family:var(--ff-display); font-size:2rem; font-weight:700; color:var(--forest); line-height:1; }
+    .hero-stat p { font-size:.78rem; color:#7a8f7c; text-transform:uppercase; letter-spacing:.1em; margin-top:4px; }
+    /* Photo collage */
+    .hero-visual {
+      position:relative; z-index:2;
+      display:grid; grid-template-columns:1fr 1fr; grid-template-rows:auto auto;
+      gap:12px; padding:var(--space-lg) 0 var(--space-lg) var(--space-md);
+      animation: fadeUp .9s .2s ease both;
+    }
+    .hero-card { border-radius:var(--radius-lg); overflow:hidden; position:relative; }
+    .hero-card:first-child { grid-column:1/-1; height:280px; }
+    .hero-card:not(:first-child) { height:180px; }
+    .hero-card img { width:100%; height:100%; object-fit:cover; transition:transform .6s ease; }
+    .hero-card:hover img { transform:scale(1.04); }
+    .hero-card-label {
+      position:absolute; bottom:14px; left:14px;
+      background:rgba(250,247,242,.92); backdrop-filter:blur(8px);
+      padding:6px 14px; border-radius:100px; font-size:.8rem; font-weight:500; color:var(--forest);
+    }
+
+    /* ── NATURE STRIP ── */
+    .nature-strip { display:grid; grid-template-columns:repeat(5,1fr); height:260px; overflow:hidden; }
+    .nature-strip-item { overflow:hidden; position:relative; }
+    .nature-strip-item img { width:100%; height:100%; object-fit:cover; transition:transform .6s ease; }
+    .nature-strip-item:hover img { transform:scale(1.08); }
+    .strip-label {
+      position:absolute; bottom:10px; left:10px;
+      background:rgba(0,0,0,.45); color:#fff;
+      font-size:.72rem; padding:3px 10px; border-radius:100px; backdrop-filter:blur(4px);
+    }
+
+    /* ── ABOUT ── */
+    #about { background:var(--mist); }
+    .about-grid { display:grid; grid-template-columns:1fr 1fr; gap:var(--space-lg); align-items:center; }
+    .about-image-wrap { position:relative; }
+    .about-img-main { width:100%; height:520px; object-fit:cover; border-radius:var(--radius-lg); }
+    .about-img-accent {
+      position:absolute; bottom:-30px; right:-30px;
+      width:220px; height:260px; object-fit:cover;
+      border-radius:var(--radius-md); border:6px solid var(--mist);
+      box-shadow:0 12px 32px rgba(0,0,0,.15);
+    }
+    .about-badge {
+      position:absolute; top:24px; left:-20px;
+      background:var(--clay); color:var(--cream);
+      padding:14px 20px; border-radius:var(--radius-md);
+      text-align:center; font-family:var(--ff-display);
+      box-shadow:0 8px 24px rgba(194,113,79,.3);
+    }
+    .about-badge strong { display:block; font-size:2rem; line-height:1; }
+    .about-badge span   { font-size:.75rem; }
+    .about-text { padding-left:var(--space-sm); }
+    .about-text .section-heading { margin:var(--space-sm) 0; }
+    .about-text .section-subtext { margin-bottom:var(--space-md); }
+    .about-pillars { display:grid; grid-template-columns:1fr 1fr; gap:var(--space-sm); }
+    .pillar { background:#fff; padding:var(--space-sm); border-radius:var(--radius-md); border:1px solid rgba(45,74,62,.08); transition:box-shadow var(--transition),transform var(--transition); }
+    .pillar:hover { box-shadow:0 8px 24px rgba(45,74,62,.1); transform:translateY(-3px); }
+    .pillar-icon { font-size:1.6rem; margin-bottom:6px; }
+    .pillar h4 { font-size:.9rem; font-weight:500; color:var(--forest); margin-bottom:4px; }
+    .pillar p  { font-size:.8rem; color:#7a8f7c; }
+
+    /* ── DESTINATIONS ── */
+    #destinations { background:var(--cream); }
+    .dest-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:var(--space-sm); }
+    .dest-card { position:relative; border-radius:var(--radius-lg); overflow:hidden; cursor:pointer; }
+    .dest-card.featured { grid-column:span 2; }
+    .dest-img { width:100%; height:320px; object-fit:cover; transition:transform .6s ease; display:block; }
+    .dest-card.featured .dest-img { height:420px; }
+    .dest-card:hover .dest-img { transform:scale(1.05); }
+    .dest-overlay { position:absolute; inset:0; background:linear-gradient(to top,rgba(20,30,22,.82) 0%,transparent 55%); }
+    .dest-info { position:absolute; bottom:0; left:0; right:0; padding:var(--space-md); color:#fff; }
+    .dest-region { font-size:.7rem; letter-spacing:.15em; text-transform:uppercase; opacity:.8; margin-bottom:4px; }
+    .dest-name { font-family:var(--ff-display); font-size:1.5rem; font-weight:700; line-height:1.2; }
+    .dest-card.featured .dest-name { font-size:2.2rem; }
+    .dest-meta { display:flex; align-items:center; gap:1rem; margin-top:8px; font-size:.8rem; opacity:.85; }
+    .dest-badge { position:absolute; top:16px; right:16px; background:var(--clay); color:#fff; font-size:.72rem; font-weight:500; padding:4px 12px; border-radius:100px; }
+
+    /* ── EXPERIENCE ── */
+    #experience { background:var(--forest); color:var(--cream); padding:var(--space-lg) 0; }
+    .exp-inner { display:grid; grid-template-columns:repeat(4,1fr); gap:var(--space-md); }
+    .exp-item { text-align:center; padding:var(--space-md); border-right:1px solid rgba(255,255,255,.1); }
+    .exp-item:last-child { border-right:none; }
+    .exp-icon { font-size:2.2rem; margin-bottom:12px; }
+    .exp-item h3 { font-family:var(--ff-display); font-size:1.15rem; margin-bottom:6px; }
+    .exp-item p  { font-size:.83rem; opacity:.7; line-height:1.6; }
+
+    /* ── NATURE BANNER ── */
+    .nature-banner { position:relative; height:500px; overflow:hidden; display:flex; align-items:center; justify-content:center; text-align:center; }
+    .nature-banner-img { position:absolute; inset:-40px; width:calc(100% + 80px); height:calc(100% + 80px); object-fit:cover; object-position:center 60%; }
+    .nature-banner-overlay { position:absolute; inset:0; background:linear-gradient(to bottom,rgba(20,30,22,.3),rgba(20,30,22,.65)); }
+    .nature-banner-content { position:relative; z-index:2; padding:2rem; max-width:680px; }
+    .nature-banner-content p { font-size:.75rem; letter-spacing:.2em; text-transform:uppercase; color:rgba(255,255,255,.7); margin-bottom:1rem; }
+    .nature-banner-content h2 { font-family:var(--ff-display); font-size:clamp(2rem,5vw,3.8rem); color:#fff; line-height:1.15; margin-bottom:1.5rem; }
+    .nature-banner-content h2 em { color:var(--sand); }
+
+    /* ── TESTIMONIALS ── */
+    #testimonials { background:var(--mist); }
+    .testi-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:var(--space-sm); }
+    .testi-card { background:#fff; border-radius:var(--radius-lg); padding:var(--space-md); border:1px solid rgba(45,74,62,.07); transition:box-shadow var(--transition),transform var(--transition); }
+    .testi-card:hover { box-shadow:0 12px 32px rgba(45,74,62,.1); transform:translateY(-4px); }
+    .testi-stars { color:var(--clay); font-size:1rem; margin-bottom:var(--space-sm); letter-spacing:2px; }
+    .testi-quote { font-family:var(--ff-display); font-style:italic; font-size:1.05rem; line-height:1.65; color:var(--charcoal); margin-bottom:var(--space-sm); }
+    .testi-author { display:flex; align-items:center; gap:12px; }
+    .testi-avatar { width:44px; height:44px; border-radius:50%; background:var(--sage); display:flex; align-items:center; justify-content:center; font-size:1.2rem; flex-shrink:0; }
+    .testi-name { font-weight:500; font-size:.9rem; }
+    .testi-trip { font-size:.78rem; color:#7a8f7c; }
+
+    /* ── CONTACT ── */
+    #contact { background:var(--cream); }
+    .contact-grid { display:grid; grid-template-columns:1fr 1.4fr; gap:var(--space-lg); align-items:start; }
+    .contact-info .section-heading { margin:var(--space-sm) 0; }
+    .contact-info .section-subtext { margin-bottom:var(--space-md); }
+    .contact-channels { display:flex; flex-direction:column; gap:var(--space-sm); }
+    .contact-channel { display:flex; align-items:center; gap:14px; padding:var(--space-sm); background:var(--mist); border-radius:var(--radius-md); }
+    .channel-icon { width:44px; height:44px; background:var(--forest); color:#fff; border-radius:var(--radius-sm); display:flex; align-items:center; justify-content:center; font-size:1.1rem; flex-shrink:0; }
+    .channel-label { font-size:.75rem; color:#7a8f7c; }
+    .channel-value { font-size:.92rem; font-weight:500; color:var(--forest); }
+    .contact-nature-img { width:100%; height:200px; object-fit:cover; border-radius:var(--radius-md); margin-top:var(--space-md); }
+    .contact-form { background:#fff; border-radius:var(--radius-lg); padding:var(--space-md); border:1px solid rgba(45,74,62,.08); box-shadow:0 4px 32px rgba(45,74,62,.06); }
+    .form-row { display:grid; grid-template-columns:1fr 1fr; gap:var(--space-sm); }
+    .form-group { display:flex; flex-direction:column; gap:6px; margin-bottom:var(--space-sm); }
+    .form-group label { font-size:.8rem; font-weight:500; color:var(--forest); letter-spacing:.03em; }
+    .form-group input, .form-group select, .form-group textarea {
+      padding:.75rem 1rem; border:1.5px solid rgba(45,74,62,.15); border-radius:var(--radius-sm);
+      font-family:var(--ff-body); font-size:.9rem; color:var(--charcoal); background:var(--cream);
+      outline:none; transition:border-color var(--transition),box-shadow var(--transition); width:100%;
+    }
+    .form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color:var(--moss); box-shadow:0 0 0 3px rgba(74,124,89,.12); }
+    .form-group textarea { resize:vertical; min-height:110px; }
+    .form-group select   { appearance:none; cursor:pointer; }
+    .form-submit { width:100%; justify-content:center; padding:1rem; font-size:.95rem; border-radius:var(--radius-sm); }
+
+    /* ── FOOTER ── */
+    footer { background:var(--charcoal); color:var(--cream); padding:var(--space-lg) 0 var(--space-md); }
+    .footer-grid { display:grid; grid-template-columns:1.6fr 1fr 1fr 1fr; gap:var(--space-lg); margin-bottom:var(--space-lg); }
+    .footer-brand .logo { color:var(--cream); font-size:1.5rem; }
+    .footer-brand p { margin-top:var(--space-sm); font-size:.85rem; opacity:.55; line-height:1.75; max-width:260px; }
+    .footer-socials { display:flex; gap:10px; margin-top:var(--space-sm); }
+    .footer-social { width:36px; height:36px; border-radius:50%; border:1px solid rgba(255,255,255,.2); display:flex; align-items:center; justify-content:center; font-size:.85rem; transition:background var(--transition),border-color var(--transition); }
+    .footer-social:hover { background:var(--moss); border-color:var(--moss); }
+    .footer-col h4 { font-size:.75rem; text-transform:uppercase; letter-spacing:.15em; opacity:.5; margin-bottom:var(--space-sm); }
+    .footer-col ul { display:flex; flex-direction:column; gap:10px; }
+    .footer-col ul li a { font-size:.875rem; opacity:.65; transition:opacity var(--transition); }
+    .footer-col ul li a:hover { opacity:1; }
+    .footer-bottom { padding-top:var(--space-md); border-top:1px solid rgba(255,255,255,.08); display:flex; justify-content:space-between; align-items:center; font-size:.8rem; opacity:.4; }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width:960px) {
+      #hero { grid-template-columns:1fr; }
+      .hero-visual { display:none; }
+      .hero-content { padding:var(--space-lg) 0 var(--space-md); }
+      .about-grid { grid-template-columns:1fr; }
+      .about-image-wrap { display:none; }
+      .about-text { padding-left:0; }
+      .dest-grid { grid-template-columns:1fr 1fr; }
+      .dest-card.featured { grid-column:span 2; }
+      .nature-strip { grid-template-columns:repeat(3,1fr); }
+      .nature-strip-item:nth-child(4), .nature-strip-item:nth-child(5) { display:none; }
+      .exp-inner { grid-template-columns:1fr 1fr; }
+      .exp-item { border-right:none; border-bottom:1px solid rgba(255,255,255,.1); }
+      .exp-item:nth-child(3), .exp-item:last-child { border-bottom:none; }
+      .testi-grid { grid-template-columns:1fr 1fr; }
+      .contact-grid { grid-template-columns:1fr; }
+      .footer-grid { grid-template-columns:1fr 1fr; gap:var(--space-md); }
+    }
+    @media (max-width:640px) {
+      .nav-links { display:none; }
+      .dest-grid { grid-template-columns:1fr; }
+      .dest-card.featured { grid-column:span 1; }
+      .form-row { grid-template-columns:1fr; }
+      .testi-grid { grid-template-columns:1fr; }
+      .exp-inner { grid-template-columns:1fr; }
+      .footer-grid { grid-template-columns:1fr; }
+      .about-pillars { grid-template-columns:1fr; }
+      .footer-bottom { flex-direction:column; gap:var(--space-xs); text-align:center; }
+      .hero-stats { gap:var(--space-sm); }
+      .nature-strip { grid-template-columns:repeat(2,1fr); height:200px; }
+      .nature-strip-item:nth-child(3), .nature-strip-item:nth-child(4) { display:none; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav id="navbar">
+    <div class="container nav-inner">
+      <a href="#hero" class="logo">Backpack<span>WithUs</span></a>
+      <ul class="nav-links">
+        <li><a href="#about">About</a></li>
+        <li><a href="#destinations">Destinations</a></li>
+        <li><a href="#testimonials">Stories</a></li>
+        <li><a href="#contact" class="btn btn-primary" style="padding:.6rem 1.4rem;">Plan a Trip</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <section id="hero">
+    <div class="hero-bg"></div>
+    <div class="hero-ring"></div>
+    <div class="hero-ring"></div>
+    <div class="hero-ring"></div>
+    <div class="container" style="display:contents;">
+
+      <div class="hero-content container">
+        <span class="tag">✦ Slow Travel Redefined</span>
+        <h1 class="hero-title">Carry Less,<br><em>Experience More</em></h1>
+        <p class="hero-desc">We craft intimate, off-the-beaten-path journeys for the curious wanderer. Small groups. Big horizons. Unforgettable memories.</p>
+        <div class="hero-actions">
+          <a href="#destinations" class="btn btn-primary">Explore Destinations ↓</a>
+          <a href="#about" class="btn btn-outline">Our Story</a>
+        </div>
+        <div class="hero-stats">
+          <div class="hero-stat"><span>120+</span><p>Destinations</p></div>
+          <div class="hero-stat"><span>14K</span><p>Happy Travelers</p></div>
+          <div class="hero-stat"><span>98%</span><p>Satisfaction</p></div>
+        </div>
+      </div>
+
+      <!-- Photo collage -->
+      <div class="hero-visual">
+        <div class="hero-card">
+          <img src="https://images.unsplash.com/photo-1501854140801-50d01698950b?w=900&q=80&fit=crop" alt="Patagonia glaciers and mountains" />
+          <span class="hero-card-label">🏔 Patagonia</span>
+        </div>
+        <div class="hero-card">
+          <img src="https://images.unsplash.com/photo-1509316785289-025f5b846b35?w=600&q=80&fit=crop" alt="Sahara desert golden sand dunes" />
+          <span class="hero-card-label">🏜 Sahara</span>
+        </div>
+        <div class="hero-card">
+          <img src="https://images.unsplash.com/photo-1448375240586-882707db888b?w=600&q=80&fit=crop" alt="Tropical rainforest canopy" />
+          <span class="hero-card-label">🌿 Borneo</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- NATURE PHOTO STRIP -->
+  <div class="nature-strip" aria-label="Nature photo gallery">
+    <div class="nature-strip-item">
+      <img src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&q=75&fit=crop" alt="Alpine mountain peak at golden hour" loading="lazy" />
+      <span class="strip-label">Alps</span>
+    </div>
+    <div class="nature-strip-item">
+      <img src="https://images.unsplash.com/photo-1518020382113-a7e8fc38eac9?w=400&q=75&fit=crop" alt="Turquoise glacial lake in forest" loading="lazy" />
+      <span class="strip-label">Glacier Lake</span>
+    </div>
+    <div class="nature-strip-item">
+      <img src="https://images.unsplash.com/photo-1440342359743-84fcb8c21f21?w=400&q=75&fit=crop" alt="Dense green jungle path" loading="lazy" />
+      <span class="strip-label">Jungle</span>
+    </div>
+    <div class="nature-strip-item">
+      <img src="https://images.unsplash.com/photo-1475924156734-496f6cac6ec1?w=400&q=75&fit=crop" alt="Open savanna grasslands at dusk" loading="lazy" />
+      <span class="strip-label">Savanna</span>
+    </div>
+    <div class="nature-strip-item">
+      <img src="https://images.unsplash.com/photo-1505118380757-91f5f5632de0?w=400&q=75&fit=crop" alt="Wild rocky coastline" loading="lazy" />
+      <span class="strip-label">Coastline</span>
+    </div>
+  </div>
+
+  <!-- ABOUT -->
+  <section id="about" class="section">
+    <div class="container">
+      <div class="about-grid">
+        <div class="about-image-wrap reveal">
+          <img class="about-img-main"
+            src="https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=800&q=80&fit=crop&crop=center"
+            alt="Hiker on a mountain ridge at sunrise" loading="lazy" />
+          <img class="about-img-accent"
+            src="https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?w=400&q=80&fit=crop"
+            alt="Backpacker on lush forest trail" loading="lazy" />
+          <div class="about-badge">
+            <strong>12</strong>
+            <span>Years of<br>Adventure</span>
+          </div>
+        </div>
+        <div class="about-text reveal">
+          <span class="tag">Who We Are</span>
+          <h2 class="section-heading">Travel isn't a luxury —<br>it's a <em style="font-style:italic;color:var(--clay);">perspective</em></h2>
+          <p class="section-subtext">Founded by a group of seasoned backpackers in 2013, BackpackWithUs was born from a simple belief: the best journeys happen when you travel light, move slow, and connect deeply with the world around you.</p>
+          <p class="section-subtext" style="margin-top:1rem;">We're not a tour operator in the traditional sense. We're your fellow traveler — planning every detail so you're free to be fully present in every moment.</p>
+          <div class="about-pillars" style="margin-top:var(--space-md);">
+            <div class="pillar"><div class="pillar-icon">🌍</div><h4>Sustainable Travel</h4><p>Low-impact itineraries that give back to local communities.</p></div>
+            <div class="pillar"><div class="pillar-icon">👥</div><h4>Small Groups</h4><p>Max 12 travelers per trip for a genuine, personal experience.</p></div>
+            <div class="pillar"><div class="pillar-icon">🗺</div><h4>Expert Guides</h4><p>Local guides who live and breathe the places they show you.</p></div>
+            <div class="pillar"><div class="pillar-icon">♻️</div><h4>Carbon Neutral</h4><p>We offset 110% of every trip's carbon footprint.</p></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- DESTINATIONS -->
+  <section id="destinations" class="section">
+    <div class="container">
+      <div class="section-header centered reveal">
+        <span class="tag">Where Will You Go?</span>
+        <h2 class="section-heading">Handpicked Destinations</h2>
+        <p class="section-subtext">From ancient rainforests to desert dunes — every destination chosen for raw beauty and cultural richness.</p>
+      </div>
+      <div class="dest-grid">
+
+        <!-- Featured: Patagonia -->
+        <article class="dest-card featured reveal">
+          <img class="dest-img"
+            src="https://images.unsplash.com/photo-1501854140801-50d01698950b?w=1000&q=80&fit=crop"
+            alt="Patagonia glacier lake panorama" loading="lazy" />
+          <div class="dest-overlay"></div>
+          <span class="dest-badge">🔥 Most Popular</span>
+          <div class="dest-info">
+            <p class="dest-region">South America</p>
+            <h3 class="dest-name">Patagonia, Argentina</h3>
+            <div class="dest-meta"><span>⏱ 14 Days</span><span>🥾 Moderate</span><span>👤 From $3,200</span></div>
+          </div>
+        </article>
+
+        <!-- Sahara -->
+        <article class="dest-card reveal">
+          <img class="dest-img"
+            src="https://images.unsplash.com/photo-1509316785289-025f5b846b35?w=600&q=80&fit=crop"
+            alt="Golden Sahara sand dunes Morocco" loading="lazy" />
+          <div class="dest-overlay"></div>
+          <div class="dest-info">
+            <p class="dest-region">Africa</p>
+            <h3 class="dest-name">Sahara Desert, Morocco</h3>
+            <div class="dest-meta"><span>⏱ 10 Days</span><span>👤 From $2,400</span></div>
+          </div>
+        </article>
+
+        <!-- Borneo -->
+        <article class="dest-card reveal">
+          <img class="dest-img"
+            src="https://images.unsplash.com/photo-1448375240586-882707db888b?w=600&q=80&fit=crop&crop=top"
+            alt="Borneo tropical rainforest canopy" loading="lazy" />
+          <div class="dest-overlay"></div>
+          <div class="dest-info">
+            <p class="dest-region">Southeast Asia</p>
+            <h3 class="dest-name">Borneo Rainforest</h3>
+            <div class="dest-meta"><span>⏱ 12 Days</span><span>👤 From $2,800</span></div>
+          </div>
+        </article>
+
+        <!-- Kyrgyzstan -->
+        <article class="dest-card reveal">
+          <img class="dest-img"
+            src="https://images.unsplash.com/photo-1516912481808-3406841bd33c?w=600&q=80&fit=crop"
+            alt="Kyrgyzstan mountain highland valley" loading="lazy" />
+          <div class="dest-overlay"></div>
+          <div class="dest-info">
+            <p class="dest-region">Central Asia</p>
+            <h3 class="dest-name">Kyrgyzstan Highlands</h3>
+            <div class="dest-meta"><span>⏱ 9 Days</span><span>👤 From $1,900</span></div>
+          </div>
+        </article>
+
+        <!-- Ethiopian Highlands -->
+        <article class="dest-card reveal">
+          <img class="dest-img"
+            src="https://images.unsplash.com/photo-1528360983277-13d401cdc186?w=600&q=80&fit=crop"
+            alt="Ethiopian highlands lush green valleys" loading="lazy" />
+          <div class="dest-overlay"></div>
+          <span class="dest-badge">✨ New</span>
+          <div class="dest-info">
+            <p class="dest-region">East Africa</p>
+            <h3 class="dest-name">Ethiopian Highlands</h3>
+            <div class="dest-meta"><span>⏱ 11 Days</span><span>👤 From $2,100</span></div>
+          </div>
+        </article>
+      </div>
+      <div style="text-align:center;margin-top:var(--space-md);">
+        <a href="#contact" class="btn btn-outline">View All 120+ Destinations →</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- EXPERIENCE -->
+  <section id="experience">
+    <div class="container">
+      <div class="exp-inner">
+        <div class="exp-item reveal"><div class="exp-icon">🏕</div><h3>Immersive Camping</h3><p>Sleep under star-lit skies in handpicked backcountry camps, far from the tourist trail.</p></div>
+        <div class="exp-item reveal"><div class="exp-icon">🍽</div><h3>Local Cuisine</h3><p>Every meal is a cultural story — shared with families and communities who call this place home.</p></div>
+        <div class="exp-item reveal"><div class="exp-icon">🚵</div><h3>Active Adventures</h3><p>Hike, paddle, climb, or cycle. We tailor the intensity to your fitness and ambition level.</p></div>
+        <div class="exp-item reveal"><div class="exp-icon">📸</div><h3>Photography Stops</h3><p>We know exactly when and where the light is magic. Bring your camera — or just your eyes.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- NATURE BANNER -->
+  <div class="nature-banner">
+    <img class="nature-banner-img"
+      src="https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=1800&q=80&fit=crop&crop=center"
+      alt="Sunlit forest valley with golden rays breaking through the trees" loading="lazy" />
+    <div class="nature-banner-overlay"></div>
+    <div class="nature-banner-content">
+      <p>The World Is Waiting</p>
+      <h2>Nature doesn't pause.<br><em>Neither should you.</em></h2>
+      <a href="#contact" class="btn btn-primary" style="background:var(--clay);font-size:1rem;padding:1rem 2.4rem;">Start Your Journey →</a>
+    </div>
+  </div>
+
+  <!-- TESTIMONIALS -->
+  <section id="testimonials" class="section">
+    <div class="container">
+      <div class="section-header centered reveal">
+        <span class="tag">Traveler Stories</span>
+        <h2 class="section-heading">Words from the Trail</h2>
+        <p class="section-subtext">Real stories from real people who traded the ordinary for something unforgettable.</p>
+      </div>
+      <div class="testi-grid">
+        <div class="testi-card reveal">
+          <div class="testi-stars">★★★★★</div>
+          <blockquote class="testi-quote">"Patagonia with BackpackWithUs was the single greatest experience of my adult life. The guides, the landscape, the group — pure magic."</blockquote>
+          <div class="testi-author"><div class="testi-avatar">🧑</div><div><p class="testi-name">James R.</p><p class="testi-trip">Patagonia, 2024</p></div></div>
+        </div>
+        <div class="testi-card reveal">
+          <div class="testi-stars">★★★★★</div>
+          <blockquote class="testi-quote">"I was nervous traveling solo but the group felt like family by day two. I've already booked Morocco for next year!"</blockquote>
+          <div class="testi-author"><div class="testi-avatar">👩</div><div><p class="testi-name">Priya M.</p><p class="testi-trip">Borneo, 2024</p></div></div>
+        </div>
+        <div class="testi-card reveal">
+          <div class="testi-stars">★★★★★</div>
+          <blockquote class="testi-quote">"Every detail was perfectly arranged — we never worried about logistics and could just soak everything in. Worth every penny."</blockquote>
+          <div class="testi-author"><div class="testi-avatar">🧔</div><div><p class="testi-name">Tom &amp; Sara K.</p><p class="testi-trip">Kyrgyzstan, 2023</p></div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONTACT -->
+  <section id="contact" class="section">
+    <div class="container">
+      <div class="contact-grid">
+        <div class="contact-info reveal">
+          <span class="tag">Get In Touch</span>
+          <h2 class="section-heading">Ready to Pack<br>Your Bags?</h2>
+          <p class="section-subtext">Whether you have a dream destination in mind or just a feeling you want to chase — we'll help you shape the perfect journey.</p>
+          <div class="contact-channels">
+            <div class="contact-channel"><div class="channel-icon">✉️</div><div><p class="channel-label">Email Us</p><p class="channel-value">hello@backpackwithus.com</p></div></div>
+            <div class="contact-channel"><div class="channel-icon">📞</div><div><p class="channel-label">Call Us</p><p class="channel-value">+1 (800) 426-2225</p></div></div>
+            <div class="contact-channel"><div class="channel-icon">🕐</div><div><p class="channel-label">Office Hours</p><p class="channel-value">Mon–Fri, 9am–6pm EST</p></div></div>
+          </div>
+          <!-- Nature accent photo -->
+          <img class="contact-nature-img"
+            src="https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=700&q=80&fit=crop&crop=top"
+            alt="Misty mountain trail where your next adventure begins" loading="lazy" />
+        </div>
+
+        <div class="contact-form reveal">
+          <h3 style="font-family:var(--ff-display);font-size:1.4rem;color:var(--forest);margin-bottom:var(--space-md);">Plan Your Trip</h3>
+          <div class="form-row">
+            <div class="form-group"><label for="fname">First Name</label><input type="text" id="fname" placeholder="Jane" /></div>
+            <div class="form-group"><label for="lname">Last Name</label><input type="text" id="lname" placeholder="Doe" /></div>
+          </div>
+          <div class="form-group"><label for="email">Email Address</label><input type="email" id="email" placeholder="jane@example.com" /></div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="destination">Dream Destination</label>
+              <select id="destination">
+                <option value="">Select a region…</option>
+                <option>South America</option><option>Africa</option>
+                <option>Southeast Asia</option><option>Central Asia</option>
+                <option>East Africa</option><option>Not sure yet</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="travelers">Group Size</label>
+              <select id="travelers">
+                <option>Solo</option><option>2 People</option>
+                <option>3–5 People</option><option>6+ People</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group"><label for="message">Tell Us About Your Dream Trip</label><textarea id="message" placeholder="I've always wanted to see the glaciers of Patagonia…"></textarea></div>
+          <button type="button" class="btn btn-primary form-submit">Send My Enquiry →</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <a href="#hero" class="logo">Backpack<span style="color:var(--clay);">WithUs</span></a>
+          <p>Slow travel for the curious soul. We believe the best journeys are the ones that change you from the inside out.</p>
+          <div class="footer-socials">
+            <a href="#" class="footer-social" aria-label="Instagram">📸</a>
+            <a href="#" class="footer-social" aria-label="Facebook">🌐</a>
+            <a href="#" class="footer-social" aria-label="YouTube">▶</a>
+            <a href="#" class="footer-social" aria-label="Twitter">✦</a>
+          </div>
+        </div>
+        <div class="footer-col"><h4>Explore</h4><ul><li><a href="#destinations">All Destinations</a></li><li><a href="#destinations">Upcoming Trips</a></li><li><a href="#destinations">Custom Journeys</a></li><li><a href="#destinations">Group Travel</a></li></ul></div>
+        <div class="footer-col"><h4>Company</h4><ul><li><a href="#about">Our Story</a></li><li><a href="#about">Meet the Team</a></li><li><a href="#about">Sustainability</a></li><li><a href="#contact">Careers</a></li></ul></div>
+        <div class="footer-col"><h4>Support</h4><ul><li><a href="#contact">Contact Us</a></li><li><a href="#">FAQ</a></li><li><a href="#">Booking Policy</a></li><li><a href="#">Travel Insurance</a></li></ul></div>
+      </div>
+      <div class="footer-bottom">
+        <p>© 2025 BackpackWithUs. All rights reserved.</p>
+        <p>Privacy Policy · Terms of Service · Cookie Policy</p>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    const nav = document.getElementById('navbar');
+    window.addEventListener('scroll', () => nav.classList.toggle('scrolled', window.scrollY > 40));
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); } });
+    }, { threshold: 0.12 });
+    document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+  </script>
+</body>
+</html>
